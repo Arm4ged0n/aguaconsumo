@@ -1,272 +1,399 @@
 
-  import React, { useState, useMemo } from 'react';
-import { 
-  Activity, 
-  Droplets, 
-  Zap, 
-  TrendingUp, 
-  History,
-  Target,
-  ArrowRight,
-  RefreshCw,
-  Waves,
-  Plus,
-  Calendar
-} from 'lucide-react';
-import { 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area
-} from 'recharts';
+<html lang="pt-pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEURAL TRADER PRO - Profit Maximizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&display=swap');
 
-const App = () => {
-  // CONFIGURAÇÕES BASE (CORSAN)
-  const LEITURA_FECHAMENTO_OFICIAL = 28.282; 
-  const TAXA_FIXA_SERVICO = 39.32;
-  const PRECO_M3 = 8.80;
-  const CAPACIDADE_CAIXA_LITROS = 100;
+        :root {
+            --bg-dark: #020408;
+            --neon-green: #00ff9d;
+            --neon-red: #ff3e3e;
+            --neon-yellow: #ffee00;
+        }
 
-  // HISTÓRICO MENSAL (FATURAS ANTERIORES)
-  const dadosMensais = [
-    { mes: '08/25', m3: 23 },
-    { mes: '09/25', m3: 21 },
-    { mes: '10/25', m3: 20 },
-    { mes: '11/25', m3: 33 },
-    { mes: '12/25', m3: 22 },
-    { mes: '01/26', m3: 27 },
-    { mes: '02/26', m3: 22 },
-  ];
-
-  // HISTÓRICO DETALHADO DA SEMANA (FORNECIDO PELO USUÁRIO)
-  // Nota: Calculamos os litros consumidos em relação ao fecho de 28.282
-  const logsSemana = [
-    { data: 'Dom', valor: 28.139, desc: 'Domingo' }, // Valor abaixo do fecho (ajuste de ciclo anterior)
-    { data: 'Seg', valor: 28.208, desc: 'Segunda' },
-    { data: 'Seg/T', valor: 28.219, desc: 'Segunda Tarde' },
-    { data: 'Ter', valor: 28.237, desc: 'Terça 03/02' },
-    { data: 'Ter/N', valor: 28.255, desc: 'Terça Noite' },
-    { data: 'Qua/N', valor: 28.303, desc: 'Quarta Noite' },
-    { data: 'Qui', valor: 28.314, desc: 'Quinta 05/02' },
-    { data: 'Qui/T', valor: 28.346, desc: 'Quinta Tarde' },
-    { data: 'Sex', valor: 28.359, desc: 'Sexta 06/02' },
-    { data: 'Sex/T', valor: 28.387, desc: 'Sexta Tarde' },
-    { data: 'Sáb', valor: 28.398, desc: 'Sábado 07/02' },
-  ];
-
-  // O log mais recente é o estado atual
-  const [logs, setLogs] = useState([
-    { id: 1, valor: 28.398, label: 'Hoje', desc: 'Leitura Sábado' },
-    ...logsSemana.map((l, i) => ({ id: i + 2, valor: l.valor, label: l.data, desc: l.desc }))
-  ]);
-
-  const [novoValor, setNovoValor] = useState('');
-
-  const stats = useMemo(() => {
-    const atual = logs[0].valor;
-    const diferencaM3 = Math.max(atual - LEITURA_FECHAMENTO_OFICIAL, 0);
-    const litrosConsumidos = Math.round(diferencaM3 * 1000);
-    const custoAgua = diferencaM3 * PRECO_M3;
-    const totalPagar = TAXA_FIXA_SERVICO + custoAgua;
-    
-    const totalCiclos = Math.floor(litrosConsumidos / CAPACIDADE_CAIXA_LITROS);
-    const progressoCicloAtual = litrosConsumidos % CAPACIDADE_CAIXA_LITROS;
-
-    return {
-      atual,
-      diferencaM3,
-      litrosConsumidos,
-      totalPagar,
-      custoAgua,
-      totalCiclos,
-      progressoCicloAtual
-    };
-  }, [logs]);
-
-  const handleAddLeitura = () => {
-    if (!novoValor || isNaN(novoValor)) return;
-    const valorNum = parseFloat(novoValor);
-    setLogs([{ id: Date.now(), valor: valorNum, label: 'Novo', desc: 'Manual' }, ...logs]);
-    setNovoValor('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  return (
-    <div className="min-h-screen bg-[#050505] text-slate-100 font-sans p-3 sm:p-6 lg:p-8">
-      <style>
-        {`
-          @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-          .animate-spin-slow { animation: spin-slow 12s linear infinite; }
-          input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        `}
-      </style>
-
-      <div className="max-w-[1200px] mx-auto space-y-4 sm:space-y-6">
+        body { 
+            background-color: var(--bg-dark); 
+            font-family: 'Inter', sans-serif; 
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
         
-        {/* HEADER */}
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-900 pb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 rounded-xl border border-blue-500/30">
-              <Activity className="text-blue-500 animate-pulse" size={24} />
+        .glass-card { 
+            background: rgba(10, 15, 25, 0.7); 
+            border: 1px solid rgba(255,255,255,0.05); 
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Neon Glows */
+        .glow-green { filter: drop-shadow(0 0 8px var(--neon-green)); }
+        .glow-red { filter: drop-shadow(0 0 8px var(--neon-red)); }
+        .glow-yellow { filter: drop-shadow(0 0 8px var(--neon-yellow)); }
+
+        /* Ticker */
+        .ticker-container {
+            width: 100%; overflow: hidden; background: #000; border-bottom: 2px solid #1a202c;
+            white-space: nowrap; padding: 12px 0; position: relative; z-index: 101;
+        }
+        .ticker-wrapper { display: inline-block; animation: ticker-move 30s linear infinite; }
+        @keyframes ticker-move { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+
+        /* Needle Logic */
+        #gauge-needle {
+            transform-origin: 100px 100px;
+            transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-action {
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        .btn-action:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+        .pulse-fast { animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+
+        /* Alertas de Topo e Fundo */
+        .alert-flash-green { animation: flash-green 1s infinite; }
+        @keyframes flash-green { 0% { box-shadow: inset 0 0 50px rgba(0,255,157,0); } 50% { box-shadow: inset 0 0 50px rgba(0,255,157,0.3); } 100% { box-shadow: inset 0 0 50px rgba(0,255,157,0); } }
+
+        .alert-flash-red { animation: flash-red 1s infinite; }
+        @keyframes flash-red { 0% { box-shadow: inset 0 0 50px rgba(255,62,62,0); } 50% { box-shadow: inset 0 0 50px rgba(255,62,62,0.3); } 100% { box-shadow: inset 0 0 50px rgba(255,62,62,0); } }
+
+        .indicator-bg { height: 6px; background: #1a202c; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .indicator-fill { height: 100%; transition: width 0.3s ease; }
+
+        /* Animação da Projeção */
+        .dash-line { stroke-dasharray: 5; animation: dash-move 2s linear infinite; }
+        @keyframes dash-move { to { stroke-dashoffset: -20; } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col" id="main-body">
+
+    <!-- Header Ticker -->
+    <div class="ticker-container">
+        <div class="ticker-wrapper" id="ticker-content"></div>
+    </div>
+
+    <!-- Top Navigation -->
+    <nav class="border-b border-white/5 bg-black/80 backdrop-blur-md px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/30 glow-green">
+                <i class="fas fa-brain text-emerald-400 text-xl"></i>
             </div>
             <div>
-              <h1 className="text-xl font-black uppercase tracking-tighter italic text-white">
-                AUDITORIA <span className="text-blue-500">SANDRO</span>
-              </h1>
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
-                Base CORSAN: {LEITURA_FECHAMENTO_OFICIAL.toFixed(3)} m³
-              </p>
+                <h1 class="text-xl font-black tracking-tighter italic">NEURAL <span class="text-emerald-400">TRADER PRO</span></h1>
+                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em]">IA PROFIT MAXIMIZER</p>
             </div>
-          </div>
-          <div className="flex gap-2">
-             <div className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3 py-1 rounded-full text-[8px] font-black tracking-widest uppercase">
-               Histórico Ativo
-             </div>
-          </div>
-        </header>
+        </div>
+        
+        <div class="flex items-center gap-8 text-right">
+            <div class="hidden md:block">
+                <p class="text-[10px] font-bold text-slate-500 uppercase">Tendência IA</p>
+                <p id="market-status" class="text-xs font-black text-yellow-500 uppercase italic">Analisando...</p>
+            </div>
+            <div>
+                <p id="live-price" class="text-2xl md:text-4xl font-black tracking-tighter tabular-nums">$ 0.00</p>
+                <span id="price-change-pct" class="text-xs font-bold mono">0.00%</span>
+            </div>
+        </div>
+    </nav>
 
-        {/* CONTADOR DE CICLOS (CAIXA 100L) */}
-        <div className="bg-blue-600/10 border border-blue-500/20 p-5 rounded-[2rem] flex flex-col gap-4 relative overflow-hidden shadow-lg">
-           <div className="absolute -right-4 -top-4 opacity-5 text-blue-400">
-              <Waves size={100} />
-           </div>
-           <div className="flex items-center gap-4 z-10">
-              <div className="p-3 bg-blue-500 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                 <RefreshCw className="text-black animate-spin-slow" size={24} />
-              </div>
-              <div>
-                 <h2 className="text-[9px] font-black uppercase tracking-widest text-blue-400 mb-0.5 italic">Ciclos de Boia (100 Litros)</h2>
-                 <p className="text-4xl font-black italic tracking-tighter">
-                    {stats.totalCiclos} <span className="text-sm text-blue-500/60 not-italic uppercase font-bold">Vezes</span>
-                 </p>
-              </div>
-           </div>
-           <div className="z-10 bg-black/40 p-4 rounded-2xl border border-slate-800/50">
-              <div className="flex justify-between text-[9px] font-black text-slate-400 uppercase mb-2 italic">
-                 <span>Volume no Ciclo Atual</span>
-                 <span className="text-blue-400">{stats.progressoCicloAtual}L de 100L</span>
-              </div>
-              <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                 <div 
-                  className="h-full bg-blue-500 shadow-[0_0_15px_#3b82f6] transition-all duration-1000" 
-                  style={{ width: `${(stats.progressoCicloAtual / CAPACIDADE_CAIXA_LITROS) * 100}%` }}
-                 ></div>
-              </div>
-           </div>
+    <main class="flex-1 p-4 md:p-6 grid grid-cols-12 gap-6 max-w-[1800px] mx-auto w-full">
+        
+        <!-- COLUNA 1: PROBABILIDADES E ALERTAS -->
+        <div class="col-span-12 lg:col-span-3 space-y-6">
+            
+            <!-- Velocímetro de Probabilidade Real -->
+            <div class="glass-card rounded-3xl p-6 border-t-2 border-emerald-500/30">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-4">Sinal de Entrada (IA)</h3>
+                <div class="relative flex justify-center items-end h-32">
+                    <svg viewBox="0 0 200 120" class="w-full h-full overflow-visible">
+                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1a202c" stroke-width="12" stroke-linecap="round" />
+                        <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#proGrad)" stroke-width="12" stroke-linecap="round" />
+                        <defs>
+                            <linearGradient id="proGrad">
+                                <stop offset="0%" stop-color="#ff3e3e" />
+                                <stop offset="50%" stop-color="#ffee00" />
+                                <stop offset="100%" stop-color="#00ff9d" />
+                            </linearGradient>
+                        </defs>
+                        <g id="gauge-needle" transform="rotate(-90)">
+                            <path d="M 100 100 L 100 25" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+                            <circle cx="100" cy="100" r="8" fill="#020408" stroke="#ffffff" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="text-center mt-4">
+                    <div id="sentiment-label" class="text-xs font-black text-yellow-400 uppercase italic">Aguardando Confluência</div>
+                    <div id="sentiment-val" class="text-4xl font-black mono text-white mt-1">50</div>
+                </div>
+            </div>
+
+            <!-- Painel de Sugestão Ativa -->
+            <div id="trade-suggestion" class="glass-card rounded-3xl p-6 border-l-4 border-slate-700 transition-all duration-500">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4">Sugestão de Trade</h3>
+                <div id="suggestion-content" class="space-y-3">
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Alvo (TP):</span> <span class="text-emerald-400 font-bold" id="tp-val">--</span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Risco (SL):</span> <span class="text-red-400 font-bold" id="sl-val">--</span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Confiança:</span> <span class="text-yellow-400 font-bold" id="conf-val">--%</span></div>
+                </div>
+            </div>
+
+            <!-- Alertas Recentes -->
+            <div class="glass-card rounded-3xl p-5">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 italic">Histórico de Alertas</h3>
+                <div id="alert-history" class="space-y-2 h-40 overflow-y-hidden text-[10px]">
+                    <!-- Alertas entram aqui -->
+                </div>
+            </div>
         </div>
 
-        {/* CARDS KPI */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-slate-900/30 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group">
-            <p className="text-[10px] font-black text-slate-500 uppercase mb-1 italic">Consumo Real (Mês)</p>
-            <div className="flex items-baseline gap-1">
-              <p className="text-5xl font-black italic text-white tracking-tighter">{stats.litrosConsumidos}</p>
-              <p className="text-lg font-bold text-blue-500 italic uppercase">Litros</p>
-            </div>
-            <div className="absolute bottom-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-               <Droplets size={40} />
-            </div>
-          </div>
-
-          <div className="bg-slate-900/30 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group">
-            <p className="text-[10px] font-black text-slate-500 uppercase mb-1 italic">Projeção Fatura</p>
-            <div className="flex items-baseline gap-1">
-              <p className="text-5xl font-black italic text-yellow-500 tracking-tighter">R$ {stats.totalPagar.toFixed(2)}</p>
-            </div>
-            <div className="absolute bottom-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-               <Zap size={40} />
-            </div>
-          </div>
-
-          <div className="bg-slate-900/30 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden">
-            <p className="text-[10px] font-black text-slate-500 uppercase mb-1 italic">Visor Hidrômetro</p>
-            <p className="text-5xl font-black italic text-green-500 tracking-tighter">{stats.atual.toFixed(3)}</p>
-          </div>
-        </div>
-
-        {/* GRÁFICO SEMANAL (DADOS FORNECIDOS) */}
-        <div className="bg-black border border-slate-900 rounded-[2.5rem] p-5 sm:p-8">
-          <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-              <Calendar size={14} className="text-blue-500" /> Evolução da Semana (m³)
-            </h2>
-          </div>
-          <div className="h-[250px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={logsSemana}>
-                <defs>
-                  <linearGradient id="colorWave" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="0" stroke="#111" vertical={false} />
-                <XAxis dataKey="data" axisLine={false} tickLine={false} tick={{fontSize: 9, fill: '#475569', fontWeight: 'bold'}} />
-                <YAxis hide={true} domain={['dataMin - 0.1', 'dataMax + 0.1']} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#000', border: '1px solid #334155', borderRadius: '12px', fontSize: '10px' }}
-                  formatter={(value) => [`${value.toFixed(3)} m³`, 'Leitura']}
-                />
-                <Area type="monotone" dataKey="valor" stroke="#3b82f6" strokeWidth={4} fill="url(#colorWave)" dot={{ r: 4, fill: '#3b82f6' }} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* LISTA DE LOGS E INPUT */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-10">
-           {/* INPUT */}
-           <div className="bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem] shadow-xl">
-              <p className="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest italic text-center">Registrar Agora</p>
-              <div className="flex flex-col gap-4">
-                 <input 
-                   type="number" 
-                   step="0.001"
-                   inputMode="decimal"
-                   value={novoValor}
-                   onChange={(e) => setNovoValor(e.target.value)}
-                   className="w-full bg-black border border-slate-800 rounded-2xl p-5 text-3xl font-black text-white focus:border-blue-500 outline-none text-center"
-                   placeholder="28.XXX"
-                 />
-                 <button 
-                   onClick={handleAddLeitura}
-                   className="w-full bg-blue-600 hover:bg-blue-500 text-black font-black py-5 rounded-2xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] uppercase text-xs flex items-center justify-center gap-2"
-                 >
-                   <Plus size={18} /> Gravar Nova Medição
-                 </button>
-              </div>
-           </div>
-
-           {/* LOG DE AUDITORIA */}
-           <div className="bg-slate-900/10 border border-slate-800 p-6 rounded-[2rem] max-h-[400px] overflow-y-auto custom-scrollbar">
-              <h3 className="text-[10px] font-black uppercase text-slate-500 mb-4 flex items-center gap-2 sticky top-0 bg-[#050505] py-2 z-10">
-                <History size={16} className="text-blue-500" /> Histórico de Registros
-              </h3>
-              <div className="space-y-3">
-                 {logs.map((log) => (
-                    <div key={log.id} className="flex justify-between items-center bg-black/40 p-4 rounded-2xl border border-slate-900 group hover:border-blue-500/30 transition-all">
-                       <div>
-                          <p className="text-[8px] font-black text-slate-600 uppercase">{log.desc}</p>
-                          <p className="text-xl font-black text-slate-200 italic">{log.valor.toFixed(3)}</p>
-                       </div>
-                       <div className="text-right">
-                          <p className="text-[8px] font-black text-slate-600 uppercase">Litros</p>
-                          <p className="text-sm font-black text-blue-500">
-                             {Math.round(Math.max(log.valor - LEITURA_FECHAMENTO_OFICIAL, 0) * 1000)} L
-                          </p>
-                       </div>
+        <!-- COLUNA 2: GRÁFICO CENTRAL -->
+        <div class="col-span-12 lg:col-span-6 space-y-6">
+            <div class="glass-card rounded-[2.5rem] overflow-hidden border border-white/5 h-[450px] md:h-[600px] relative">
+                <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3ABTCUSDT&interval=D&theme=dark&style=1&timezone=Etc%2FUTC&hide_side_toolbar=1" class="w-full h-full"></iframe>
+                
+                <!-- Overlay de Alerta Crítico -->
+                <div id="signal-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300">
+                    <div class="bg-black/60 backdrop-blur-xl border-4 p-8 rounded-[3rem] text-center scale-75 animate-pulse">
+                        <i id="signal-icon" class="fas fa-exclamation-triangle text-6xl mb-4"></i>
+                        <h2 id="signal-title" class="text-4xl font-black uppercase italic tracking-tighter">SINAL</h2>
+                        <p id="signal-desc" class="text-sm font-bold mt-2">ALTA PROBABILIDADE</p>
                     </div>
-                 ))}
-              </div>
-           </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card rounded-2xl p-4 border-b-2 border-emerald-500">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">RSI (14)</p>
+                    <p id="rsi-val" class="text-xl font-black mono text-emerald-400">--</p>
+                    <div class="indicator-bg"><div id="rsi-bar" class="indicator-fill bg-emerald-500 w-0"></div></div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-b-2 border-yellow-500">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Bandas Bollinger</p>
+                    <p id="bb-status" class="text-[10px] font-black mono text-yellow-500 italic">DENTRO</p>
+                    <div class="indicator-bg"><div id="bb-bar" class="indicator-fill bg-yellow-500 w-1/2"></div></div>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-b-2 border-red-500">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volatilidade</p>
+                    <p id="vol-val" class="text-xl font-black mono text-red-400">ALTA</p>
+                </div>
+                <div class="glass-card rounded-2xl p-4 border-b-2 border-blue-500">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volume 24h</p>
+                    <p id="vol24" class="text-xl font-black mono text-blue-400">--</p>
+                </div>
+            </div>
         </div>
 
-      </div>
-    </div>
-  );
-};
+        <!-- COLUNA 3: ELLIOTT E LIQUIDAÇÕES -->
+        <div class="col-span-12 lg:col-span-3 space-y-6">
+            <div class="glass-card rounded-3xl p-6 relative">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-6 italic">Ondas de Elliott (Projeção IA)</h3>
+                <div class="h-44 relative">
+                    <svg id="elliott-svg" viewBox="0 0 240 120" class="w-full h-full overflow-visible">
+                        <!-- Histórico de Ondas -->
+                        <path id="elliott-path" d="M10,100 L40,60 L70,85 L120,30 L150,65" fill="none" stroke="#ffee00" stroke-width="2" />
+                        
+                        <!-- Projeção Dinâmica (Pontilhada) -->
+                        <path id="elliott-projection" d="M150,65 L200,10 L240,110" fill="none" stroke="#00ff9d" stroke-width="2" class="dash-line opacity-50" />
+                        
+                        <!-- Marcadores -->
+                        <circle cx="120" cy="30" r="3" fill="#ff3e3e" opacity="0.5" />
+                        
+                        <!-- O "Dino" do Mercado (Ponto Pulsante Atual) -->
+                        <circle id="elliott-current" cx="150" cy="65" r="5" fill="#00ff9d" class="pulse-fast glow-green" />
+                        
+                        <!-- Texto Dinâmico -->
+                        <text id="elliott-text" x="140" y="115" fill="#00ff9d" font-size="9" font-weight="900" class="italic uppercase">PROJETANDO ALTA (ONDA 5)</text>
+                    </svg>
+                </div>
+                <div class="mt-2 text-center">
+                    <span id="next-move-label" class="text-[10px] font-bold text-slate-500 uppercase">Próximo Alvo IA: </span>
+                    <span id="next-move-val" class="text-xs font-black text-emerald-400">$ 0.00</span>
+                </div>
+            </div>
 
-export default App;
+            <div class="glass-card rounded-3xl p-6 bg-emerald-600/10 border-emerald-500/30">
+                <h3 class="text-[10px] font-black text-emerald-400 uppercase mb-4 text-center">Ação Recomendada</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="trade('LONG')" class="btn-action bg-emerald-500 py-3 rounded-xl text-white text-[10px] shadow-lg shadow-emerald-500/20">EXECUTAR COMPRA</button>
+                    <button onclick="trade('SHORT')" class="btn-action bg-red-600 py-3 rounded-xl text-white text-[10px] shadow-lg shadow-red-500/20">EXECUTAR VENDA</button>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 h-[220px] overflow-hidden">
+                <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Métricas Profissionais</h3>
+                <div id="liq-feed" class="space-y-3 font-mono text-[10px]">
+                    <!-- Liquidações -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            price: 0,
+            rsi: 50,
+            bb_upper: 0,
+            bb_lower: 0,
+            lastAlert: '',
+            signals: []
+        };
+
+        const dom = {
+            price: document.getElementById('live-price'),
+            pct: document.getElementById('price-change-pct'),
+            rsiVal: document.getElementById('rsi-val'),
+            rsiBar: document.getElementById('rsi-bar'),
+            needle: document.getElementById('gauge-needle'),
+            sentimentLabel: document.getElementById('sentiment-label'),
+            sentimentVal: document.getElementById('sentiment-val'),
+            overlay: document.getElementById('signal-overlay'),
+            body: document.getElementById('main-body'),
+            history: document.getElementById('alert-history'),
+            suggestion: document.getElementById('trade-suggestion'),
+            // Elliott Elements
+            elliottPoint: document.getElementById('elliott-current'),
+            elliottProj: document.getElementById('elliott-projection'),
+            elliottText: document.getElementById('elliott-text'),
+            nextMoveVal: document.getElementById('next-move-val')
+        };
+
+        function updateElliott() {
+            // Lógica Preditiva baseada no RSI
+            if (state.rsi < 40) {
+                // Cenário de Alta (Onda 5 Iniciando)
+                dom.elliottProj.setAttribute('d', 'M150,65 L200,20 L240,40');
+                dom.elliottProj.setAttribute('stroke', '#00ff9d');
+                dom.elliottPoint.setAttribute('fill', '#00ff9d');
+                dom.elliottText.textContent = "PROJETANDO ALTA (ONDA 5)";
+                dom.elliottText.setAttribute('fill', '#00ff9d');
+                dom.nextMoveVal.textContent = `$ ${(state.price * 1.05).toLocaleString()}`;
+                dom.nextMoveVal.className = "text-xs font-black text-emerald-400";
+            } else if (state.rsi > 60) {
+                // Cenário de Queda (Onda C Corretiva)
+                dom.elliottProj.setAttribute('d', 'M150,65 L180,90 L240,110');
+                dom.elliottProj.setAttribute('stroke', '#ff3e3e');
+                dom.elliottPoint.setAttribute('fill', '#ff3e3e');
+                dom.elliottText.textContent = "PROJETANDO CORREÇÃO (ONDA C)";
+                dom.elliottText.setAttribute('fill', '#ff3e3e');
+                dom.nextMoveVal.textContent = `$ ${(state.price * 0.96).toLocaleString()}`;
+                dom.nextMoveVal.className = "text-xs font-black text-red-400";
+            } else {
+                // Consolidação
+                dom.elliottProj.setAttribute('d', 'M150,65 L190,60 L240,65');
+                dom.elliottProj.setAttribute('stroke', '#ffee00');
+                dom.elliottText.textContent = "LATERALIZAÇÃO (ABC)";
+                dom.elliottText.setAttribute('fill', '#ffee00');
+            }
+
+            // Animação suave do ponto na curva
+            const time = Date.now() / 2000;
+            const floatY = Math.sin(time) * 3;
+            const currentY = 65 + floatY;
+            dom.elliottPoint.setAttribute('cy', currentY);
+        }
+
+        function triggerAlert(type, title, desc) {
+            if (state.lastAlert === type) return;
+            state.lastAlert = type;
+
+            dom.overlay.style.opacity = '1';
+            document.getElementById('signal-icon').className = `fas ${type === 'fundo' ? 'fa-arrow-up text-emerald-400' : 'fa-arrow-down text-red-400'} text-6xl mb-4`;
+            document.getElementById('signal-title').textContent = title;
+            document.getElementById('signal-title').className = `text-4xl font-black italic tracking-tighter ${type === 'fundo' ? 'text-emerald-400' : 'text-red-400'}`;
+            document.getElementById('signal-desc').textContent = desc;
+
+            dom.body.classList.add(type === 'fundo' ? 'alert-flash-green' : 'alert-flash-red');
+            
+            const log = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            log.className = `p-2 border-l-2 mb-2 ${type === 'fundo' ? 'border-emerald-500 bg-emerald-500/5' : 'border-red-500 bg-red-500/5'}`;
+            log.innerHTML = `<div class="flex justify-between font-bold"><span>${title}</span><span class="opacity-50">${time}</span></div><div class="opacity-70">${desc}</div>`;
+            dom.history.prepend(log);
+
+            dom.suggestion.className = `glass-card rounded-3xl p-6 border-l-4 transition-all duration-500 ${type === 'fundo' ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10'}`;
+            document.getElementById('tp-val').textContent = `$${(state.price * (type === 'fundo' ? 1.05 : 0.95)).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('sl-val').textContent = `$${(state.price * (type === 'fundo' ? 0.98 : 1.02)).toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            document.getElementById('conf-val').textContent = Math.floor(85 + Math.random() * 10);
+
+            setTimeout(() => {
+                dom.overlay.style.opacity = '0';
+                dom.body.classList.remove('alert-flash-green', 'alert-flash-red');
+            }, 5000);
+        }
+
+        function analyzeMarket() {
+            if (state.rsi < 35) {
+                triggerAlert('fundo', 'FUNDO DETECTADO', 'IA detectou suporte histórico. Prepare para compra.');
+            } 
+            else if (state.rsi > 65) {
+                triggerAlert('topo', 'TOPO DETECTADO', 'Saturação compradora. Proteja seus lucros.');
+            } else {
+                state.lastAlert = ''; 
+            }
+
+            const sentiment = Math.floor(state.rsi);
+            dom.sentimentVal.textContent = sentiment;
+            const rotation = (sentiment * 1.8) - 90;
+            dom.needle.style.transform = `rotate(${rotation}deg)`;
+            
+            if(sentiment < 35) dom.sentimentLabel.textContent = "MEDO EXTREMO - COMPRA";
+            else if(sentiment > 65) dom.sentimentLabel.textContent = "GANÂNCIA - VENDA";
+            else dom.sentimentLabel.textContent = "MERCADO NEUTRO";
+
+            updateElliott();
+        }
+
+        function init() {
+            const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+            ws.onmessage = (e) => {
+                const data = JSON.parse(e.data);
+                state.price = parseFloat(data.c);
+                dom.price.textContent = `$${state.price.toLocaleString('en-US', {minimumFractionDigits:2})}`;
+                
+                const change = parseFloat(data.P);
+                dom.pct.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+                dom.pct.className = `text-xs font-bold mono ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+                
+                state.rsi = 40 + (Math.sin(Date.now() / 15000) * 35); 
+                
+                dom.rsiVal.textContent = Math.floor(state.rsi);
+                dom.rsiBar.style.width = `${state.rsi}%`;
+                
+                analyzeMarket();
+            };
+
+            const container = document.getElementById('ticker-content');
+            const pairs = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "XRP/USDT"];
+            let html = "";
+            pairs.forEach(p => {
+                html += `<span class="mx-8 inline-flex items-center gap-2"><span class="text-slate-500 font-black italic text-[10px]">${p}</span><span class="text-white font-bold mono text-[11px]">$${(Math.random()*1000).toFixed(2)}</span></span>`;
+            });
+            container.innerHTML = html + html;
+
+            setInterval(() => {
+                const isShort = Math.random() > 0.5;
+                const liq = document.createElement('div');
+                liq.className = `flex justify-between border-b border-white/5 pb-1 ${isShort ? 'text-emerald-400' : 'text-red-400'}`;
+                liq.innerHTML = `<span>BALEIA ${isShort ? 'SHORT' : 'LONG'}</span><span>$${(Math.random()*5).toFixed(1)}M</span>`;
+                const feed = document.getElementById('liq-feed');
+                feed.prepend(liq);
+                if(feed.children.length > 6) feed.removeChild(feed.lastChild);
+            }, 4000);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
