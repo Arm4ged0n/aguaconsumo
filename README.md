@@ -1,2 +1,2 @@
-# aguaconsumo
-App que faz o consumo de agua 
+# DETECTAR TOPO E FUNDO
+APP DE TRADER BTC
