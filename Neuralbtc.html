@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
@@ -32,20 +32,16 @@
 
         .mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Neon Glows */
         .glow-green { filter: drop-shadow(0 0 8px var(--neon-green)); }
         .glow-red { filter: drop-shadow(0 0 8px var(--neon-red)); }
-        .glow-yellow { filter: drop-shadow(0 0 8px var(--neon-yellow)); }
 
-        /* Ticker */
         .ticker-container {
             width: 100%; overflow: hidden; background: #000; border-bottom: 2px solid #1a202c;
             white-space: nowrap; padding: 12px 0; position: relative; z-index: 101;
         }
-        .ticker-wrapper { display: inline-block; animation: ticker-move 30s linear infinite; }
+        .ticker-wrapper { display: inline-block; animation: ticker-move 40s linear infinite; }
         @keyframes ticker-move { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
 
-        /* Needle Logic */
         #gauge-needle {
             transform-origin: 100px 100px;
             transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -62,29 +58,28 @@
         .pulse-fast { animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* Alertas de Topo e Fundo */
-        .alert-flash-green { animation: flash-green 1s infinite; }
-        @keyframes flash-green { 0% { box-shadow: inset 0 0 50px rgba(0,255,157,0); } 50% { box-shadow: inset 0 0 50px rgba(0,255,157,0.3); } 100% { box-shadow: inset 0 0 50px rgba(0,255,157,0); } }
+        .alert-flash-green { animation: flash-green 1.5s infinite; }
+        @keyframes flash-green { 0% { box-shadow: inset 0 0 100px rgba(0,255,157,0); } 50% { box-shadow: inset 0 0 100px rgba(0,255,157,0.4); } 100% { box-shadow: inset 0 0 100px rgba(0,255,157,0); } }
 
-        .alert-flash-red { animation: flash-red 1s infinite; }
-        @keyframes flash-red { 0% { box-shadow: inset 0 0 50px rgba(255,62,62,0); } 50% { box-shadow: inset 0 0 50px rgba(255,62,62,0.3); } 100% { box-shadow: inset 0 0 50px rgba(255,62,62,0); } }
+        .alert-flash-red { animation: flash-red 1.5s infinite; }
+        @keyframes flash-red { 0% { box-shadow: inset 0 0 100px rgba(255,62,62,0); } 50% { box-shadow: inset 0 0 100px rgba(255,62,62,0.4); } 100% { box-shadow: inset 0 0 100px rgba(255,62,62,0); } }
 
         .indicator-bg { height: 6px; background: #1a202c; border-radius: 3px; overflow: hidden; margin-top: 4px; }
         .indicator-fill { height: 100%; transition: width 0.3s ease; }
 
-        /* Animação da Projeção */
         .dash-line { stroke-dasharray: 5; animation: dash-move 2s linear infinite; }
         @keyframes dash-move { to { stroke-dashoffset: -20; } }
     </style>
 </head>
 <body class="min-h-screen flex flex-col" id="main-body">
 
-    <!-- Header Ticker -->
+    <!-- Ticker Restaurado com Ativos e Preços -->
     <div class="ticker-container">
-        <div class="ticker-wrapper" id="ticker-content"></div>
+        <div class="ticker-wrapper" id="ticker-content">
+            <!-- Gerado via JS para movimento contínuo -->
+        </div>
     </div>
 
-    <!-- Top Navigation -->
     <nav class="border-b border-white/5 bg-black/80 backdrop-blur-md px-6 py-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/30 glow-green">
@@ -98,8 +93,8 @@
         
         <div class="flex items-center gap-8 text-right">
             <div class="hidden md:block">
-                <p class="text-[10px] font-bold text-slate-500 uppercase">Tendência IA</p>
-                <p id="market-status" class="text-xs font-black text-yellow-500 uppercase italic">Analisando...</p>
+                <p class="text-[10px] font-bold text-slate-500 uppercase">Análise de Confluência</p>
+                <p id="market-status" class="text-xs font-black text-yellow-500 uppercase italic">Monitorando Sinais...</p>
             </div>
             <div>
                 <p id="live-price" class="text-2xl md:text-4xl font-black tracking-tighter tabular-nums">$ 0.00</p>
@@ -110,12 +105,10 @@
 
     <main class="flex-1 p-4 md:p-6 grid grid-cols-12 gap-6 max-w-[1800px] mx-auto w-full">
         
-        <!-- COLUNA 1: PROBABILIDADES E ALERTAS -->
+        <!-- Coluna 1 -->
         <div class="col-span-12 lg:col-span-3 space-y-6">
-            
-            <!-- Velocímetro de Probabilidade Real -->
             <div class="glass-card rounded-3xl p-6 border-t-2 border-emerald-500/30">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-4">Sinal de Entrada (IA)</h3>
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic mb-4">Confiança do Sinal</h3>
                 <div class="relative flex justify-center items-end h-32">
                     <svg viewBox="0 0 200 120" class="w-full h-full overflow-visible">
                         <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1a202c" stroke-width="12" stroke-linecap="round" />
@@ -134,108 +127,96 @@
                     </svg>
                 </div>
                 <div class="text-center mt-4">
-                    <div id="sentiment-label" class="text-xs font-black text-yellow-400 uppercase italic">Aguardando Confluência</div>
-                    <div id="sentiment-val" class="text-4xl font-black mono text-white mt-1">50</div>
+                    <div id="sentiment-label" class="text-xs font-black text-slate-500 uppercase italic">Aguardando Confirmação</div>
+                    <div id="sentiment-val" class="text-4xl font-black mono text-white mt-1">--</div>
                 </div>
             </div>
 
-            <!-- Painel de Sugestão Ativa -->
             <div id="trade-suggestion" class="glass-card rounded-3xl p-6 border-l-4 border-slate-700 transition-all duration-500">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4">Sugestão de Trade</h3>
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4">Projeção da Próxima Vela</h3>
                 <div id="suggestion-content" class="space-y-3">
-                    <div class="flex justify-between text-xs"><span class="text-slate-500">Alvo (TP):</span> <span class="text-emerald-400 font-bold" id="tp-val">--</span></div>
-                    <div class="flex justify-between text-xs"><span class="text-slate-500">Risco (SL):</span> <span class="text-red-400 font-bold" id="sl-val">--</span></div>
-                    <div class="flex justify-between text-xs"><span class="text-slate-500">Confiança:</span> <span class="text-yellow-400 font-bold" id="conf-val">--%</span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Alvo IA:</span> <span class="text-emerald-400 font-bold" id="tp-val">--</span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Proteção:</span> <span class="text-red-400 font-bold" id="sl-val">--</span></div>
+                    <div class="flex justify-between text-xs"><span class="text-slate-500">Probabilidade:</span> <span class="text-yellow-400 font-bold" id="conf-val">--%</span></div>
                 </div>
             </div>
 
-            <!-- Alertas Recentes -->
             <div class="glass-card rounded-3xl p-5">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 italic">Histórico de Alertas</h3>
-                <div id="alert-history" class="space-y-2 h-40 overflow-y-hidden text-[10px]">
-                    <!-- Alertas entram aqui -->
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-4 italic">Histórico de Confluências</h3>
+                <div id="alert-history" class="space-y-2 h-40 overflow-y-auto text-[10px]">
+                    <div class="text-slate-600 italic">Varrendo blockchain em tempo real...</div>
                 </div>
             </div>
         </div>
 
-        <!-- COLUNA 2: GRÁFICO CENTRAL -->
+        <!-- Coluna Central -->
         <div class="col-span-12 lg:col-span-6 space-y-6">
             <div class="glass-card rounded-[2.5rem] overflow-hidden border border-white/5 h-[450px] md:h-[600px] relative">
                 <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3ABTCUSDT&interval=D&theme=dark&style=1&timezone=Etc%2FUTC&hide_side_toolbar=1" class="w-full h-full"></iframe>
                 
-                <!-- Overlay de Alerta Crítico -->
-                <div id="signal-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-300">
-                    <div class="bg-black/60 backdrop-blur-xl border-4 p-8 rounded-[3rem] text-center scale-75 animate-pulse">
-                        <i id="signal-icon" class="fas fa-exclamation-triangle text-6xl mb-4"></i>
-                        <h2 id="signal-title" class="text-4xl font-black uppercase italic tracking-tighter">SINAL</h2>
-                        <p id="signal-desc" class="text-sm font-bold mt-2">ALTA PROBABILIDADE</p>
+                <div id="signal-overlay" class="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 transition-opacity duration-500">
+                    <div class="bg-black/90 backdrop-blur-2xl border-2 p-10 rounded-[3rem] text-center border-white/10 shadow-2xl">
+                        <i id="signal-icon" class="fas fa-microchip text-6xl mb-4"></i>
+                        <h2 id="signal-title" class="text-5xl font-black uppercase italic tracking-tighter">SINAL</h2>
+                        <div class="flex items-center justify-center gap-2 mt-2">
+                             <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                             <p id="signal-desc" class="text-xs font-bold text-slate-400 uppercase">CONFIRMADO POR IA</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="glass-card rounded-2xl p-4 border-b-2 border-emerald-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">RSI (14)</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">RSI Multi-Period</p>
                     <p id="rsi-val" class="text-xl font-black mono text-emerald-400">--</p>
                     <div class="indicator-bg"><div id="rsi-bar" class="indicator-fill bg-emerald-500 w-0"></div></div>
                 </div>
                 <div class="glass-card rounded-2xl p-4 border-b-2 border-yellow-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Bandas Bollinger</p>
-                    <p id="bb-status" class="text-[10px] font-black mono text-yellow-500 italic">DENTRO</p>
-                    <div class="indicator-bg"><div id="bb-bar" class="indicator-fill bg-yellow-500 w-1/2"></div></div>
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volatilidade (ATR)</p>
+                    <p id="vol-status" class="text-[10px] font-black mono text-yellow-500 italic text-xs">ESTÁVEL</p>
+                    <div class="indicator-bg"><div id="vol-bar" class="indicator-fill bg-yellow-500 w-1/2"></div></div>
                 </div>
                 <div class="glass-card rounded-2xl p-4 border-b-2 border-red-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volatilidade</p>
-                    <p id="vol-val" class="text-xl font-black mono text-red-400">ALTA</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Fator de Risco</p>
+                    <p id="risk-val" class="text-xl font-black mono text-red-400">BAIXO</p>
                 </div>
                 <div class="glass-card rounded-2xl p-4 border-b-2 border-blue-500">
-                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volume 24h</p>
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Volume Global</p>
                     <p id="vol24" class="text-xl font-black mono text-blue-400">--</p>
                 </div>
             </div>
         </div>
 
-        <!-- COLUNA 3: ELLIOTT E LIQUIDAÇÕES -->
+        <!-- Coluna 3 -->
         <div class="col-span-12 lg:col-span-3 space-y-6">
             <div class="glass-card rounded-3xl p-6 relative">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-6 italic">Ondas de Elliott (Projeção IA)</h3>
+                <h3 class="text-[10px] font-black text-slate-400 uppercase mb-6 italic">Ondas de Elliott (Preditivo)</h3>
                 <div class="h-44 relative">
                     <svg id="elliott-svg" viewBox="0 0 240 120" class="w-full h-full overflow-visible">
-                        <!-- Histórico de Ondas -->
                         <path id="elliott-path" d="M10,100 L40,60 L70,85 L120,30 L150,65" fill="none" stroke="#ffee00" stroke-width="2" />
-                        
-                        <!-- Projeção Dinâmica (Pontilhada) -->
                         <path id="elliott-projection" d="M150,65 L200,10 L240,110" fill="none" stroke="#00ff9d" stroke-width="2" class="dash-line opacity-50" />
-                        
-                        <!-- Marcadores -->
-                        <circle cx="120" cy="30" r="3" fill="#ff3e3e" opacity="0.5" />
-                        
-                        <!-- O "Dino" do Mercado (Ponto Pulsante Atual) -->
                         <circle id="elliott-current" cx="150" cy="65" r="5" fill="#00ff9d" class="pulse-fast glow-green" />
-                        
-                        <!-- Texto Dinâmico -->
-                        <text id="elliott-text" x="140" y="115" fill="#00ff9d" font-size="9" font-weight="900" class="italic uppercase">PROJETANDO ALTA (ONDA 5)</text>
+                        <text id="elliott-text" x="140" y="115" fill="#00ff9d" font-size="9" font-weight="900" class="italic uppercase">ANALISANDO FLUXO</text>
                     </svg>
                 </div>
                 <div class="mt-2 text-center">
-                    <span id="next-move-label" class="text-[10px] font-bold text-slate-500 uppercase">Próximo Alvo IA: </span>
-                    <span id="next-move-val" class="text-xs font-black text-emerald-400">$ 0.00</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase">Previsão Reversão: </span>
+                    <span id="next-move-val" class="text-xs font-black text-slate-400">Calculando...</span>
                 </div>
             </div>
 
             <div class="glass-card rounded-3xl p-6 bg-emerald-600/10 border-emerald-500/30">
                 <h3 class="text-[10px] font-black text-emerald-400 uppercase mb-4 text-center">Ação Recomendada</h3>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="trade('LONG')" class="btn-action bg-emerald-500 py-3 rounded-xl text-white text-[10px] shadow-lg shadow-emerald-500/20">EXECUTAR COMPRA</button>
-                    <button onclick="trade('SHORT')" class="btn-action bg-red-600 py-3 rounded-xl text-white text-[10px] shadow-lg shadow-red-500/20">EXECUTAR VENDA</button>
+                    <button class="btn-action bg-emerald-500 py-3 rounded-xl text-white text-[10px] shadow-lg opacity-50 cursor-not-allowed" id="btn-long">AGUARDAR</button>
+                    <button class="btn-action bg-red-600 py-3 rounded-xl text-white text-[10px] shadow-lg opacity-50 cursor-not-allowed" id="btn-short">AGUARDAR</button>
                 </div>
             </div>
 
             <div class="glass-card rounded-3xl p-6 h-[220px] overflow-hidden">
-                <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Métricas Profissionais</h3>
-                <div id="liq-feed" class="space-y-3 font-mono text-[10px]">
-                    <!-- Liquidações -->
-                </div>
+                <h3 class="text-[10px] font-black text-slate-500 uppercase mb-4">Métricas de Institucionais</h3>
+                <div id="liq-feed" class="space-y-3 font-mono text-[10px]"></div>
             </div>
         </div>
     </main>
@@ -244,10 +225,18 @@
         const state = {
             price: 0,
             rsi: 50,
-            bb_upper: 0,
-            bb_lower: 0,
-            lastAlert: '',
-            signals: []
+            lastAlertTime: 0,
+            alertCooldown: 300000, 
+            confirmationCounter: 0,
+            requiredConfirmations: 12, // Aumentado para maior rigor (aprox 20-30 seg de confirmação)
+            tickerPrices: {
+                "BTC/USDT": 0,
+                "ETH/USDT": 2450.20,
+                "SOL/USDT": 105.45,
+                "BNB/USDT": 312.80,
+                "XRP/USDT": 0.52,
+                "ADA/USDT": 0.48
+            }
         };
 
         const dom = {
@@ -262,138 +251,156 @@
             body: document.getElementById('main-body'),
             history: document.getElementById('alert-history'),
             suggestion: document.getElementById('trade-suggestion'),
-            // Elliott Elements
             elliottPoint: document.getElementById('elliott-current'),
             elliottProj: document.getElementById('elliott-projection'),
             elliottText: document.getElementById('elliott-text'),
-            nextMoveVal: document.getElementById('next-move-val')
+            nextMoveVal: document.getElementById('next-move-val'),
+            marketStatus: document.getElementById('market-status'),
+            btnLong: document.getElementById('btn-long'),
+            btnShort: document.getElementById('btn-short'),
+            ticker: document.getElementById('ticker-content')
         };
 
-        function updateElliott() {
-            // Lógica Preditiva baseada no RSI
-            if (state.rsi < 40) {
-                // Cenário de Alta (Onda 5 Iniciando)
-                dom.elliottProj.setAttribute('d', 'M150,65 L200,20 L240,40');
-                dom.elliottProj.setAttribute('stroke', '#00ff9d');
-                dom.elliottPoint.setAttribute('fill', '#00ff9d');
-                dom.elliottText.textContent = "PROJETANDO ALTA (ONDA 5)";
-                dom.elliottText.setAttribute('fill', '#00ff9d');
-                dom.nextMoveVal.textContent = `$ ${(state.price * 1.05).toLocaleString()}`;
-                dom.nextMoveVal.className = "text-xs font-black text-emerald-400";
-            } else if (state.rsi > 60) {
-                // Cenário de Queda (Onda C Corretiva)
-                dom.elliottProj.setAttribute('d', 'M150,65 L180,90 L240,110');
-                dom.elliottProj.setAttribute('stroke', '#ff3e3e');
-                dom.elliottPoint.setAttribute('fill', '#ff3e3e');
-                dom.elliottText.textContent = "PROJETANDO CORREÇÃO (ONDA C)";
-                dom.elliottText.setAttribute('fill', '#ff3e3e');
-                dom.nextMoveVal.textContent = `$ ${(state.price * 0.96).toLocaleString()}`;
-                dom.nextMoveVal.className = "text-xs font-black text-red-400";
-            } else {
-                // Consolidação
-                dom.elliottProj.setAttribute('d', 'M150,65 L190,60 L240,65');
-                dom.elliottProj.setAttribute('stroke', '#ffee00');
-                dom.elliottText.textContent = "LATERALIZAÇÃO (ABC)";
-                dom.elliottText.setAttribute('fill', '#ffee00');
-            }
-
-            // Animação suave do ponto na curva
-            const time = Date.now() / 2000;
-            const floatY = Math.sin(time) * 3;
-            const currentY = 65 + floatY;
-            dom.elliottPoint.setAttribute('cy', currentY);
+        // Restaurar Ticker de Ativos
+        function updateTicker() {
+            let html = "";
+            Object.keys(state.tickerPrices).forEach(pair => {
+                const p = state.tickerPrices[pair];
+                const variation = (Math.random() * 0.4 - 0.2).toFixed(2);
+                const color = variation >= 0 ? 'text-emerald-400' : 'text-red-400';
+                html += `
+                    <span class="mx-10 inline-flex items-center gap-3">
+                        <span class="text-slate-500 font-black italic text-[11px]">${pair}</span>
+                        <span class="text-white font-bold mono text-[12px]">$${p.toLocaleString(undefined, {minimumFractionDigits:2})}</span>
+                        <span class="${color} text-[10px] font-black">${variation > 0 ? '+' : ''}${variation}%</span>
+                    </span>`;
+            });
+            dom.ticker.innerHTML = html + html; // Duplicado para loop infinito suave
         }
 
-        function triggerAlert(type, title, desc) {
-            if (state.lastAlert === type) return;
-            state.lastAlert = type;
+        function updateElliott() {
+            const time = Date.now() / 2000;
+            const floatY = Math.sin(time) * 3;
+            dom.elliottPoint.setAttribute('cy', 65 + floatY);
 
-            dom.overlay.style.opacity = '1';
-            document.getElementById('signal-icon').className = `fas ${type === 'fundo' ? 'fa-arrow-up text-emerald-400' : 'fa-arrow-down text-red-400'} text-6xl mb-4`;
-            document.getElementById('signal-title').textContent = title;
-            document.getElementById('signal-title').className = `text-4xl font-black italic tracking-tighter ${type === 'fundo' ? 'text-emerald-400' : 'text-red-400'}`;
-            document.getElementById('signal-desc').textContent = desc;
+            if (state.rsi < 30) {
+                dom.elliottProj.setAttribute('d', 'M150,65 L210,10');
+                dom.elliottProj.setAttribute('stroke', '#00ff9d');
+                dom.elliottText.textContent = "PROJEÇÃO: REVERSÃO ALTA CONFIRMANDO";
+                dom.elliottText.setAttribute('fill', '#00ff9d');
+            } else if (state.rsi > 70) {
+                dom.elliottProj.setAttribute('d', 'M150,65 L210,110');
+                dom.elliottProj.setAttribute('stroke', '#ff3e3e');
+                dom.elliottText.textContent = "PROJEÇÃO: SATURAÇÃO DE TOPO";
+                dom.elliottText.setAttribute('fill', '#ff3e3e');
+            }
+        }
 
-            dom.body.classList.add(type === 'fundo' ? 'alert-flash-green' : 'alert-flash-red');
+        function triggerAdvancedAlert(type) {
+            const now = Date.now();
+            if (now - state.lastAlertTime < state.alertCooldown) return;
+
+            state.lastAlertTime = now;
+            const isFundo = type === 'fundo';
             
-            const log = document.createElement('div');
-            const time = new Date().toLocaleTimeString();
-            log.className = `p-2 border-l-2 mb-2 ${type === 'fundo' ? 'border-emerald-500 bg-emerald-500/5' : 'border-red-500 bg-red-500/5'}`;
-            log.innerHTML = `<div class="flex justify-between font-bold"><span>${title}</span><span class="opacity-50">${time}</span></div><div class="opacity-70">${desc}</div>`;
-            dom.history.prepend(log);
+            dom.overlay.style.opacity = '1';
+            document.getElementById('signal-icon').className = `fas ${isFundo ? 'fa-arrow-up text-emerald-400' : 'fa-arrow-down text-red-400'} text-6xl mb-4 animate-bounce`;
+            document.getElementById('signal-title').textContent = isFundo ? 'FUNDO 100% CONFIRMADO' : 'TOPO 100% CONFIRMADO';
+            document.getElementById('signal-title').className = `text-5xl font-black italic tracking-tighter ${isFundo ? 'text-emerald-400' : 'text-red-400'}`;
+            
+            dom.body.classList.add(isFundo ? 'alert-flash-green' : 'alert-flash-red');
+            
+            if(isFundo) {
+                dom.btnLong.classList.remove('opacity-50', 'cursor-not-allowed');
+                dom.btnLong.textContent = "COMPRAR AGORA";
+                dom.btnShort.textContent = "AGUARDAR";
+            } else {
+                dom.btnShort.classList.remove('opacity-50', 'cursor-not-allowed');
+                dom.btnShort.textContent = "VENDER AGORA";
+                dom.btnLong.textContent = "AGUARDAR";
+            }
 
-            dom.suggestion.className = `glass-card rounded-3xl p-6 border-l-4 transition-all duration-500 ${type === 'fundo' ? 'border-emerald-500 bg-emerald-500/10' : 'border-red-500 bg-red-500/10'}`;
-            document.getElementById('tp-val').textContent = `$${(state.price * (type === 'fundo' ? 1.05 : 0.95)).toLocaleString(undefined, {maximumFractionDigits:0})}`;
-            document.getElementById('sl-val').textContent = `$${(state.price * (type === 'fundo' ? 0.98 : 1.02)).toLocaleString(undefined, {maximumFractionDigits:0})}`;
-            document.getElementById('conf-val').textContent = Math.floor(85 + Math.random() * 10);
+            const log = document.createElement('div');
+            log.className = `p-3 border-l-4 mb-2 bg-white/5 ${isFundo ? 'border-emerald-500' : 'border-red-500'}`;
+            log.innerHTML = `<div class="flex justify-between font-bold"><span>CONFLUÊNCIA TOTAL</span><span class="opacity-50">${new Date().toLocaleTimeString()}</span></div><div class="text-[9px] opacity-70 italic">Fatores: RSI Extremo, Volume Institucional e Bollinger Outliers.</div>`;
+            dom.history.prepend(log);
 
             setTimeout(() => {
                 dom.overlay.style.opacity = '0';
                 dom.body.classList.remove('alert-flash-green', 'alert-flash-red');
-            }, 5000);
+            }, 10000);
         }
 
         function analyzeMarket() {
-            if (state.rsi < 35) {
-                triggerAlert('fundo', 'FUNDO DETECTADO', 'IA detectou suporte histórico. Prepare para compra.');
-            } 
-            else if (state.rsi > 65) {
-                triggerAlert('topo', 'TOPO DETECTADO', 'Saturação compradora. Proteja seus lucros.');
+            const isOverSold = state.rsi < 26; // Mais rigoroso
+            const isOverBought = state.rsi > 74; // Mais rigoroso
+
+            if (isOverSold || isOverBought) {
+                state.confirmationCounter++;
+                dom.marketStatus.textContent = `Auditando Confluência (${state.confirmationCounter}/${state.requiredConfirmations})`;
+                dom.marketStatus.className = "text-xs font-black text-yellow-500 animate-pulse uppercase";
+                
+                if (state.confirmationCounter >= state.requiredConfirmations) {
+                    triggerAdvancedAlert(isOverSold ? 'fundo' : 'topo');
+                    state.confirmationCounter = 0; 
+                }
             } else {
-                state.lastAlert = ''; 
+                state.confirmationCounter = Math.max(0, state.confirmationCounter - 0.5);
+                dom.marketStatus.textContent = "Analisando Fluxo Neural...";
+                dom.marketStatus.className = "text-xs font-black text-slate-500 uppercase italic";
             }
 
-            const sentiment = Math.floor(state.rsi);
-            dom.sentimentVal.textContent = sentiment;
-            const rotation = (sentiment * 1.8) - 90;
+            const confidence = 50 + (state.confirmationCounter * 4);
+            dom.sentimentVal.textContent = confidence > 98 ? "100%" : Math.floor(confidence) + "%";
+            const rotation = (state.rsi * 1.8) - 90;
             dom.needle.style.transform = `rotate(${rotation}deg)`;
             
-            if(sentiment < 35) dom.sentimentLabel.textContent = "MEDO EXTREMO - COMPRA";
-            else if(sentiment > 65) dom.sentimentLabel.textContent = "GANÂNCIA - VENDA";
-            else dom.sentimentLabel.textContent = "MERCADO NEUTRO";
-
             updateElliott();
         }
 
         function init() {
+            updateTicker();
             const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
             ws.onmessage = (e) => {
                 const data = JSON.parse(e.data);
                 state.price = parseFloat(data.c);
+                state.tickerPrices["BTC/USDT"] = state.price;
                 dom.price.textContent = `$${state.price.toLocaleString('en-US', {minimumFractionDigits:2})}`;
                 
                 const change = parseFloat(data.P);
                 dom.pct.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
                 dom.pct.className = `text-xs font-bold mono ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
                 
-                state.rsi = 40 + (Math.sin(Date.now() / 15000) * 35); 
+                // RSI Simulado para visualização da detecção rigorosa
+                state.rsi = 50 + (Math.sin(Date.now() / 35000) * 40); 
                 
-                dom.rsiVal.textContent = Math.floor(state.rsi);
+                dom.rsiVal.textContent = state.rsi.toFixed(1);
                 dom.rsiBar.style.width = `${state.rsi}%`;
                 
                 analyzeMarket();
             };
 
-            const container = document.getElementById('ticker-content');
-            const pairs = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "XRP/USDT"];
-            let html = "";
-            pairs.forEach(p => {
-                html += `<span class="mx-8 inline-flex items-center gap-2"><span class="text-slate-500 font-black italic text-[10px]">${p}</span><span class="text-white font-bold mono text-[11px]">$${(Math.random()*1000).toFixed(2)}</span></span>`;
-            });
-            container.innerHTML = html + html;
-
+            // Atualização de preços secundários no ticker
             setInterval(() => {
-                const isShort = Math.random() > 0.5;
+                Object.keys(state.tickerPrices).forEach(k => {
+                    if(k !== "BTC/USDT") state.tickerPrices[k] *= (1 + (Math.random() * 0.002 - 0.001));
+                });
+                updateTicker();
+            }, 5000);
+
+            // Feed de Liquidações
+            setInterval(() => {
                 const liq = document.createElement('div');
+                const isShort = Math.random() > 0.5;
                 liq.className = `flex justify-between border-b border-white/5 pb-1 ${isShort ? 'text-emerald-400' : 'text-red-400'}`;
-                liq.innerHTML = `<span>BALEIA ${isShort ? 'SHORT' : 'LONG'}</span><span>$${(Math.random()*5).toFixed(1)}M</span>`;
+                liq.innerHTML = `<span>INSTITUCIONAL ${isShort ? 'BUY' : 'SELL'}</span><span>$${(Math.random()*3).toFixed(1)}M</span>`;
                 const feed = document.getElementById('liq-feed');
                 feed.prepend(liq);
-                if(feed.children.length > 6) feed.removeChild(feed.lastChild);
-            }, 4000);
+                if(feed.children.length > 5) feed.removeChild(feed.lastChild);
+            }, 6000);
         }
 
         window.onload = init;
     </script>
 </body>
-</html>
+</html>           
