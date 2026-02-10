@@ -3,338 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuralMind - Core Command Terminal</title>
+    <title>NeuralMind Pro | Scroll Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lucide-static/0.321.0/lucide.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        :root {
+            --neon-emerald: #10b981;
+            --bg-dark: #010204;
+        }
 
         body {
-            background-color: #020408;
-            color: #e2e8f0;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
             font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
+            overflow-y: auto; /* Habilita o scroll */
+            scroll-behavior: smooth;
         }
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        @keyframes scroll {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
-        .animate-scroll {
-            display: flex;
-            width: 200%;
-            animation: scroll 30s linear infinite;
+        /* Estilo do Botão Fixo no Topo */
+        .robot-btn-fixed {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
         }
 
-        .glass {
-            background: rgba(15, 23, 42, 0.6);
+        .robot-pulse {
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        .card-neon { 
+            background: rgba(8, 12, 20, 0.9); 
             border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
         }
 
-        @keyframes cursor-blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        .animate-cursor {
-            animation: cursor-blink 1s step-end infinite;
+        .indicator-card {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
         }
 
-        @keyframes heart-pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-        }
-        .animate-logo-pulse {
-            animation: heart-pulse 2s ease-in-out infinite;
+        .indicator-card:hover {
+            border-left-color: var(--neon-emerald);
+            background: rgba(16, 185, 129, 0.05);
         }
 
-        .terminal-bg {
-            background: linear-gradient(135deg, #050a0f 0%, #020408 100%);
-        }
-
-        .hidden { display: none !important; }
-
-        /* EstilizaÃ§Ã£o Scrollbar */
+        /* Esconder scrollbar mas manter funcionalidade */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-track { background: #05070a; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-emerald); }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
 
-    <!-- Ticker Superior -->
-    <div class="fixed top-0 w-full bg-black/90 backdrop-blur-md border-b border-white/5 z-[100] py-1 overflow-hidden">
-        <div class="animate-scroll" id="ticker-container">
-            <!-- Gerado via JS -->
+    <!-- TOP BAR FIXA -->
+    <header class="sticky top-0 h-20 bg-[#05070a]/90 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 md:px-8 z-[100]">
+        <div class="flex items-center gap-3">
+            <i data-lucide="terminal" class="text-emerald-500 w-8 h-8"></i>
+            <div class="hidden sm:block">
+                <h1 class="text-lg font-black italic tracking-tighter leading-none uppercase">NEURALMIND</h1>
+                <span class="text-[8px] text-emerald-500 font-bold tracking-[0.4em] uppercase font-mono">Core v8.5</span>
+            </div>
         </div>
-    </div>
 
-    <main class="pt-16 pb-6 px-3 md:px-6 max-w-[1700px] mx-auto" id="market-view">
+        <div class="flex items-center gap-4 md:gap-8">
+            <div class="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                <div class="text-right">
+                    <p class="text-[7px] text-slate-500 font-black uppercase tracking-widest leading-none mb-1">BTC/USDT</p>
+                    <p id="top-price" class="font-mono text-xs md:text-sm text-emerald-400 font-bold leading-none">$ --,---</p>
+                </div>
+            </div>
+
+            <!-- Botão Principal do Robô -->
+            <button onclick="openRobot()" class="flex items-center gap-2 md:gap-3 px-5 py-2.5 md:px-8 md:py-3 rounded-full text-emerald-400 font-black text-[10px] md:text-xs uppercase tracking-[0.2em] robot-btn-fixed robot-pulse transition-all hover:bg-emerald-500 hover:text-black">
+                <i data-lucide="bot" class="w-4 h-4 md:w-5 md:h-5"></i>
+                <span>Ativar Robô</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (LAYOUT VERTICAL) -->
+    <main class="w-full">
         
-        <!-- Header -->
-        <header class="flex flex-col sm:row items-center justify-between glass p-4 md:p-5 rounded-2xl mb-4 gap-4 shadow-xl border-b-2 border-emerald-500/20">
-            <div class="flex items-center gap-4 self-start sm:self-center animate-logo-pulse">
-                <div class="bg-slate-800 p-2.5 md:p-3 rounded-lg border border-slate-700 shadow-inner">
-                    <i data-lucide="terminal" class="text-emerald-400 w-6 h-6"></i>
-                </div>
-                <div>
-                    <h1 class="text-sm md:text-xl font-black tracking-tighter uppercase italic leading-none flex items-center gap-1">
-                        Neural<span class="text-emerald-400">Mind</span>
-                        <span class="w-2 h-5 bg-emerald-500 animate-cursor inline-block"></span>
-                    </h1>
-                    <span class="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">CORE COMMAND TERMINAL</span>
+        <!-- SEÇÃO 1: GRÁFICO (OCUPA A TELA INICIAL) -->
+        <section class="w-full h-[calc(100vh-80px)] p-2 md:p-6 bg-black">
+            <div class="w-full h-full rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative">
+                <iframe src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3ABTCUSDT&interval=5&theme=dark&style=1" class="w-full h-full opacity-90"></iframe>
+                <!-- Badge Flutuante de Scroll -->
+                <div class="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-2 pointer-events-none">
+                    <span class="text-[8px] font-black uppercase text-emerald-500/50 tracking-widest">Ver Stack Analítica</span>
+                    <i data-lucide="chevron-down" class="text-emerald-500/50 w-4 h-4"></i>
                 </div>
             </div>
+        </section>
 
-            <div class="flex items-center justify-between w-full sm:w-auto gap-4 md:gap-8">
-                <div class="text-left sm:text-right">
-                    <p class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest">Feed em Tempo Real</p>
+        <!-- SEÇÃO 2: STACK ANALÍTICA - NEURALMIND CORE -->
+        <section id="analytics" class="max-w-7xl mx-auto px-6 py-16 md:py-24">
+            <div class="mb-12 text-center md:text-left">
+                <h2 class="text-3xl md:text-5xl font-black italic tracking-tighter uppercase mb-4">Stack Analítica <span class="text-emerald-500">NeuralMind Core</span></h2>
+                <p class="text-slate-400 text-sm md:text-base max-w-3xl leading-relaxed">
+                    A plataforma utiliza o conceito de <span class="text-white font-bold">Confluência Neural</span>. 
+                    O robô não opera apenas porque um indicador subiu; ele executa quando as 12 camadas de dados confirmam a mesma direção institucional.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 1. Trend Core -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="line-chart" class="text-emerald-500 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">Trend Core</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Médias Móveis Exponenciais (EMA 14, 50, 120, 200, 300). Identifica a Maré do Mercado e suportes dinâmicos.</p>
+                    <div class="pt-2 flex flex-wrap gap-2">
+                        <span class="px-2 py-1 bg-emerald-500/10 text-emerald-500 text-[8px] font-bold rounded">EMA 200: SUPORTE</span>
+                        <span class="px-2 py-1 bg-white/5 text-slate-400 text-[8px] font-bold rounded">ALINHAMENTO: 85%</span>
+                    </div>
+                </div>
+
+                <!-- 2. Estrutura Elliott -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="activity" class="text-blue-400 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">Ondas de Elliott</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Mapeamento fractal de tendências (Ondas 1, 3, 5) e correções (A, B, C). Foco em capturar o início da Onda 3.</p>
+                    <div class="pt-2">
+                        <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[8px] font-bold rounded uppercase">Status: Final da Onda 4</span>
+                    </div>
+                </div>
+
+                <!-- 3. Momentum RSI -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="zap" class="text-purple-400 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">Momentum (RSI)</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Filtro de exaustão e divergências. Identifica se o preço está esticado demais para manter a segurança operacional.</p>
+                    <div class="pt-2 flex justify-between items-center">
+                        <span class="text-[10px] font-mono text-purple-400">RSI (14): 52.4</span>
+                        <span class="text-[8px] text-slate-500 uppercase font-black">Neutro / Bullish</span>
+                    </div>
+                </div>
+
+                <!-- 4. Liquidez & Volume -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="layers" class="text-orange-400 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">Volume Heatmap</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Mapeamento de clusters de baleias. Identifica onde as grandes instituições deixaram ordens "escondidas".</p>
                     <div class="flex items-center gap-2">
-                        <span id="price-display" class="text-xl md:text-2xl font-black font-mono text-white tracking-tighter">$---,---</span>
-                        <span id="change-display" class="text-[9px] md:text-[10px] font-black">0.00%</span>
+                        <div class="flex-1 bg-white/5 h-1 rounded-full overflow-hidden">
+                            <div class="bg-orange-500 h-full w-[70%]"></div>
+                        </div>
+                        <span class="text-[8px] font-bold">ALTA</span>
                     </div>
                 </div>
 
-                <button onclick="runAiAnalysis()" class="flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-xl transition-all active:scale-95 group">
-                    <i data-lucide="bot" class="text-emerald-400 w-5 h-5 group-hover:rotate-12 transition-transform"></i>
-                    <span class="text-[9px] md:text-[11px] font-black uppercase text-emerald-400 tracking-widest italic">AnÃ¡lise IA</span>
-                </button>
+                <!-- 5. On-Chain MVRV -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="database" class="text-sky-400 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">MVRV Z-Score</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Dados de rede. Avalia se o BTC está subvalorizado em relação ao custo médio de aquisição dos mineradores.</p>
+                    <div class="text-[10px] font-bold text-sky-400 italic">Z-Score: +0.85 (Acumulação)</div>
+                </div>
+
+                <!-- 6. Volatilidade ATR -->
+                <div class="indicator-card card-neon p-6 rounded-2xl space-y-4">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="shield-alert" class="text-rose-400 w-6 h-6"></i>
+                        <h4 class="font-black uppercase tracking-widest text-xs">Volatilidade ATR</h4>
+                    </div>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Gestão de Risco Inteligente. O Stop Loss é técnico, baseado na oscilação real, não em valor financeiro arbitrário.</p>
+                </div>
             </div>
-        </header>
 
-        <!-- Grid do Mercado -->
-        <div class="grid grid-cols-12 gap-3 md:gap-4">
-            <section class="col-span-12 lg:col-span-8 space-y-3 md:space-y-4">
-                <div class="glass rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden h-[350px] sm:h-[450px] md:h-[600px] shadow-2xl relative">
-                    <iframe id="tv-chart" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE%3ABTCUSDT&interval=5&theme=dark&style=1" class="w-full h-full opacity-80"></iframe>
+            <!-- Upgrade de Elite Suggestion -->
+            <div class="mt-16 p-8 border border-dashed border-emerald-500/20 rounded-3xl bg-emerald-500/5 flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-1">
+                    <h5 class="text-emerald-500 font-black uppercase text-xs tracking-widest mb-2">Sugestão de Upgrade de Elite</h5>
+                    <p class="text-slate-300 text-sm leading-relaxed">Para antecipar movimentos de manipulação institucional (Smart Money), podemos integrar camadas de <span class="text-white font-bold">Funding Rates, CVD e DXY Correlation</span>.</p>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                    <div class="glass p-3 rounded-xl text-center"><p class="text-[8px] font-bold text-slate-500 uppercase mb-1">RSI MTF</p><p id="rsi-val" class="text-[10px] md:text-xs font-black italic text-emerald-400 uppercase">45.2%</p></div>
-                    <div class="glass p-3 rounded-xl text-center"><p class="text-[8px] font-bold text-slate-500 uppercase mb-1">Funding</p><p class="text-[10px] md:text-xs font-black italic text-sky-400 uppercase">0.0102%</p></div>
-                    <div class="glass p-3 rounded-xl text-center"><p class="text-[8px] font-bold text-slate-500 uppercase mb-1">MVRV Z-Score</p><p class="text-[10px] md:text-xs font-black italic text-purple-400 uppercase">1.48</p></div>
-                    <div class="glass p-3 rounded-xl text-center"><p class="text-[8px] font-bold text-slate-500 uppercase mb-1">Status</p><p class="text-[10px] md:text-xs font-black italic text-emerald-400 uppercase">Operacional</p></div>
-                </div>
-            </section>
-
-            <aside class="col-span-12 lg:col-span-4 space-y-3 md:space-y-4">
-                <div class="glass p-4 md:p-6 rounded-[1.5rem]">
-                    <h3 class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-4 flex items-center gap-2"><i data-lucide="activity" class="w-3 h-3 text-emerald-500"></i> Elliott & Fibo</h3>
-                    <div class="space-y-4 text-[9px] md:text-[11px] font-black uppercase italic">
-                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Onda Atual</span><span class="text-emerald-400">Onda 4</span></div>
-                        <div class="flex justify-between border-b border-white/5 pb-2"><span>Target Onda 5</span><span class="text-white">$82,450</span></div>
-                        <div class="flex justify-between"><span>Probabilidade</span><span class="text-sky-400">78.4%</span></div>
-                    </div>
-                </div>
-                <div class="glass p-4 md:p-6 rounded-[1.5rem] h-[250px] flex flex-col">
-                    <h3 class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-4">Fluxo de Liquidez</h3>
-                    <div class="flex-1 flex flex-col justify-around" id="liquidity-map">
-                        <!-- Heatmap content -->
-                    </div>
-                </div>
-            </aside>
-        </div>
+                <button class="px-6 py-3 bg-emerald-500 text-black font-black text-[10px] uppercase rounded-xl tracking-widest hover:scale-105 transition-all">Integrar Camadas Elite</button>
+            </div>
+        </section>
     </main>
 
-    <!-- Terminal da IA (Overlay) -->
-    <div id="ai-view" class="hidden fixed inset-0 z-[200] p-3 md:p-6 terminal-bg flex items-center justify-center">
-        <div class="glass w-full max-w-[1500px] h-full rounded-[2rem] md:rounded-[3rem] p-4 md:p-8 flex flex-col shadow-2xl border border-emerald-500/20 overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-6">
+    <!-- ROBOT TERMINAL OVERLAY (SOBREPOSIÇÃO) -->
+    <div id="robot-terminal" class="hidden fixed inset-0 z-[200] bg-black/95 backdrop-blur-2xl p-4 md:p-12 flex items-center justify-center">
+        <div class="w-full max-w-5xl h-full md:h-auto md:min-h-[600px] card-neon rounded-[2.5rem] border border-emerald-500/20 overflow-hidden flex flex-col shadow-2xl">
+            <div class="p-6 border-b border-white/10 bg-black/40 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <div class="bg-emerald-500/10 p-2 md:p-3 rounded-xl border border-emerald-500/20 text-emerald-400">
-                        <i data-lucide="bot" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg md:text-2xl font-black italic uppercase tracking-tighter text-white">Interface Neural</h2>
-                        <p class="text-[8px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest">Decision Engine V6.2.0</p>
-                    </div>
+                    <i data-lucide="bot" class="text-emerald-400 w-6 h-6 animate-pulse"></i>
+                    <h3 class="text-xs font-black uppercase tracking-[0.3em]">Confluência Neural em Execução</h3>
                 </div>
-                <button onclick="closeAiAnalysis()" class="p-2 hover:bg-white/5 rounded-full transition-colors group">
-                    <i data-lucide="x" class="w-8 h-8 text-slate-500 group-hover:text-white"></i>
+                <button onclick="closeRobot()" class="p-2 hover:bg-white/5 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-slate-500"></i>
                 </button>
             </div>
 
-            <div class="grid grid-cols-12 gap-6 flex-1 h-full">
-                <!-- Log Linux -->
-                <div id="terminal-logs" class="col-span-12 lg:col-span-7 bg-black/70 rounded-2xl p-4 md:p-6 font-mono text-[10px] md:text-xs border border-emerald-500/10 overflow-y-auto shadow-inner">
-                    <div class="text-emerald-500 mb-4 font-black flex items-center gap-3">
-                        <span class="uppercase tracking-widest">[ root@neural-mind ~ ]# analyze --full</span>
-                    </div>
-                    <div id="log-output" class="space-y-2 text-slate-300"></div>
-                    <div id="linux-loader" class="mt-4 flex items-center gap-3 text-emerald-400">
-                        <i data-lucide="loader-2" class="animate-spin w-4 h-4"></i>
-                        <span class="animate-pulse font-bold uppercase tracking-widest text-[9px]">A aceder ao Kernel...</span>
-                    </div>
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                <!-- Terminal -->
+                <div class="flex-1 p-6 md:p-10 font-mono text-[10px] md:text-xs overflow-y-auto bg-black/30 space-y-3 border-b md:border-b-0 md:border-r border-white/5 order-2 md:order-1 scroll-hide">
+                    <div class="text-emerald-500/40 uppercase font-black mb-4">>>> starting_bitica_neural_confluence()</div>
+                    <div id="log-list" class="space-y-1"></div>
                 </div>
 
-                <!-- Resultado -->
-                <div class="col-span-12 lg:col-span-5 flex flex-col justify-center space-y-6">
-                    <div id="ai-loading-placeholder" class="flex-1 flex flex-col items-center justify-center text-center">
-                        <i data-lucide="cpu" class="w-12 h-12 text-emerald-500 animate-spin mb-4"></i>
-                        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500">Scanning...</p>
+                <!-- Decisão -->
+                <div class="w-full md:w-[400px] p-8 md:p-12 flex flex-col justify-center items-center bg-[#050812] order-1 md:order-2 shrink-0">
+                    <div id="robot-loader" class="text-center space-y-4">
+                        <div class="w-12 h-12 border-2 border-emerald-500/10 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
+                        <p class="text-[9px] font-black uppercase text-emerald-500 tracking-[0.3em]">Sincronizando 12 Camadas...</p>
                     </div>
 
-                    <div id="ai-report-content" class="hidden space-y-6">
-                        <div id="verdict-card" class="glass p-6 md:p-8 rounded-[2rem] border-l-8 border-emerald-500 shadow-2xl bg-emerald-500/5">
-                            <p class="text-[9px] font-black text-slate-500 uppercase mb-4 tracking-tighter">Veredito Neural</p>
-                            <div class="flex items-center gap-5">
-                                <div id="verdict-icon" class="p-4 rounded-2xl bg-emerald-500 text-black shadow-[0_0_30px_rgba(16,185,129,0.4)]">
-                                    <i data-lucide="trending-up" class="w-10 h-10"></i>
-                                </div>
-                                <div>
-                                    <p id="verdict-text" class="text-3xl md:text-5xl font-black italic text-white tracking-tighter uppercase leading-none">Compra</p>
-                                    <p class="text-[10px] md:text-xs font-bold text-emerald-400 mt-2 uppercase">ConfluÃªncia: 94.2%</p>
-                                </div>
+                    <div id="robot-decision" class="hidden w-full space-y-8 animate-in zoom-in-95">
+                        <div class="bg-emerald-500 py-10 rounded-[2rem] text-black shadow-[0_15px_50px_rgba(16,185,129,0.3)] text-center">
+                            <h4 class="text-6xl font-black italic tracking-tighter uppercase leading-none">COMPRA</h4>
+                            <p class="text-[9px] font-black uppercase mt-2 opacity-70">Confiança Neural: 92.4%</p>
+                        </div>
+                        
+                        <div class="space-y-3 w-full">
+                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <span class="text-[9px] text-slate-500 font-black uppercase">Preço Entrada</span>
+                                <span id="entry-p" class="font-mono font-bold text-white text-lg">---</span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <span class="text-[9px] text-emerald-500/50 font-black uppercase tracking-widest">Alvo (Take)</span>
+                                <span id="tp-p" class="font-mono text-emerald-400 font-bold text-lg">---</span>
                             </div>
                         </div>
 
-                        <div class="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/5">
-                            <h4 class="text-[10px] font-black text-slate-500 uppercase mb-3 tracking-widest">Justificativa:</h4>
-                            <p id="reason-text" class="text-xs md:text-sm leading-relaxed text-slate-300 font-medium italic border-l-2 border-emerald-500/30 pl-4"></p>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3 md:gap-4">
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><p class="text-[8px] font-bold text-slate-500 mb-1">ENTRADA</p><p id="entry-val" class="text-[11px] font-black font-mono text-white"></p></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><p class="text-[8px] font-bold text-slate-500 mb-1">STOP LOSS</p><p id="stop-val" class="text-[11px] font-black font-mono text-rose-400"></p></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><p class="text-[8px] font-bold text-slate-500 mb-1">TAKE PROFIT 1</p><p id="tp1-val" class="text-[11px] font-black font-mono text-emerald-400"></p></div>
-                            <div class="bg-black/40 p-3 rounded-xl border border-white/5"><p class="text-[8px] font-bold text-slate-500 mb-1">ALVO FINAL</p><p class="text-[11px] font-black font-mono text-sky-400">$82,450.00</p></div>
-                        </div>
+                        <button onclick="closeRobot()" class="w-full py-4 border border-white/10 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-white/5 transition-all">Fechar Terminal</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- RODAPÉ -->
+    <footer class="h-12 bg-[#05070a] border-t border-white/5 flex items-center justify-between px-6 text-[9px] font-black text-slate-600 uppercase tracking-widest">
+        <span>© 2024 NeuralMind Core v8.5.2</span>
+        <div class="flex gap-6 items-center">
+            <span class="flex items-center gap-1"><i data-lucide="cpu" class="w-3 h-3"></i> Smart Money Active</span>
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+        </div>
+    </footer>
+
     <script>
         lucide.createIcons();
 
         let currentPrice = 0;
-        let currentChange = 0;
 
-        // Inicializar Ticker
-        const tickerContainer = document.getElementById('ticker-container');
-        const tickerContent = Array(10).fill('').map(() => `
-            <div class="flex items-center gap-4 mx-8">
-                <span class="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-widest">
-                    BTC/USDT <span class="text-white ml-1 price-tick">$---</span>
-                    <span class="ml-2 change-tick text-emerald-400">â² 0.00%</span>
-                </span>
-            </div>
-        `).join('');
-        tickerContainer.innerHTML = tickerContent + tickerContent;
-
-        // WebSocket Binance
-        const btcWs = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
-        btcWs.onmessage = (event) => {
+        // WebSocket Price
+        const ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+        ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             currentPrice = parseFloat(data.c);
-            currentChange = parseFloat(data.P);
-
-            const priceStr = `$${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            const changeStr = `${currentChange >= 0 ? 'â²' : 'â¼'} ${Math.abs(currentChange)}%`;
-
-            document.getElementById('price-display').innerText = priceStr;
-            const cDisp = document.getElementById('change-display');
-            cDisp.innerText = changeStr;
-            cDisp.className = `text-[9px] md:text-[10px] font-black ${currentChange >= 0 ? 'text-emerald-400' : 'text-rose-500'}`;
-
-            document.querySelectorAll('.price-tick').forEach(el => el.innerText = priceStr);
-            document.querySelectorAll('.change-tick').forEach(el => {
-                el.innerText = changeStr;
-                el.className = `ml-2 change-tick ${currentChange >= 0 ? 'text-emerald-400' : 'text-rose-500'}`;
-            });
+            document.getElementById('top-price').innerText = `$ ${currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
         };
 
-        // Render Heatmap
-        const heatmap = document.getElementById('liquidity-map');
-        [80, 45, 95, 30].forEach((v, i) => {
-            heatmap.innerHTML += `
-                <div class="space-y-1">
-                    <div class="flex justify-between text-[8px] font-bold">
-                        <span class="text-slate-500">$${(62000 + (150 * i)).toLocaleString()}</span>
-                        <span class="text-rose-500/80">${v}M USD</span>
-                    </div>
-                    <div class="w-full bg-white/5 h-1 rounded-full"><div class="bg-rose-500/30 h-full" style="width: ${v}%"></div></div>
-                </div>
-            `;
-        });
+        function openRobot() {
+            document.getElementById('robot-terminal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Lock scroll while terminal is open
+            runRobotAnalysis();
+        }
 
-        // LÃ³gica do RobÃ´
-        function runAiAnalysis() {
-            document.getElementById('ai-view').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+        function closeRobot() {
+            document.getElementById('robot-terminal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        async function runRobotAnalysis() {
+            const list = document.getElementById('log-list');
+            const loader = document.getElementById('robot-loader');
+            const decision = document.getElementById('robot-decision');
             
-            const logOutput = document.getElementById('log-output');
-            const loader = document.getElementById('linux-loader');
-            const report = document.getElementById('ai-report-content');
-            const placeholder = document.getElementById('ai-loading-placeholder');
-            
-            logOutput.innerHTML = '';
-            report.classList.add('hidden');
-            placeholder.classList.remove('hidden');
+            list.innerHTML = '';
             loader.classList.remove('hidden');
+            decision.classList.add('hidden');
 
-            const logs = [
-                "> [BOOT] Inicializando kernel neural v6.0.4...",
-                "> [LOAD] Carregando bibliotecas tÃ©cnicas (TA-Lib)...",
-                "> [SCAN] Escaneando MÃ©dias MÃ³veis EMA 50/200/300...",
-                "> [COMPUTE] Processando RSI e Volatilidade...",
-                "> [MAP] Localizando clusters de liquidez...",
-                "> [WAVE] Analisando estrutura (Ondas de Elliott)...",
-                "> [READY] AnÃ¡lise concluÃ­da. Gerando estratÃ©gia..."
+            const steps = [
+                "Inicializando bitica.py Preditivo...",
+                "Varrendo Trend Core: EMAs alinhadas.",
+                "Estrutura: Onda 4 (Elliott) finalizada em Fibonacci 0.618.",
+                "Liquidez: Identificados clusters institucionais em suporte.",
+                "On-Chain: MVRV indicando subvalorização da rede.",
+                "Momentum: RSI (14) cruzando zona de 50 (Alta).",
+                "Volatilidade: ATR configurado para Stop Loss técnico.",
+                "Cálculo de Confluência Neural: 92.4% confirmado.",
+                "Gerando veredito final..."
             ];
 
-            let i = 0;
-            const timer = setInterval(() => {
-                if (i < logs.length) {
-                    const div = document.createElement('div');
-                    div.className = 'animate-in fade-in slide-in-from-left-2';
-                    div.innerHTML = `<span class="text-emerald-500/50 font-bold shrink-0">[${(i * 0.4).toFixed(1)}s]</span> ${logs[i]}`;
-                    logOutput.appendChild(div);
-                    i++;
-                } else {
-                    clearInterval(timer);
-                    showReport();
-                }
-            }, 450);
-        }
-
-        function showReport() {
-            document.getElementById('linux-loader').classList.add('hidden');
-            document.getElementById('ai-loading-placeholder').classList.add('hidden');
-            const report = document.getElementById('ai-report-content');
-            report.classList.remove('hidden');
-
-            const isBullish = currentChange > -0.5; // LÃ³gica simples para exemplo
-            
-            document.getElementById('verdict-text').innerText = isBullish ? "COMPRA (LONG)" : "VENDA (SHORT)";
-            document.getElementById('reason-text').innerText = isBullish 
-                ? "ExaustÃ£o vendedora em Fibonacci 0.618 detectada. O robÃ´ identificou forte absorÃ§Ã£o institucional e inÃ­cio da Onda 5 de Elliott."
-                : "Sobrecompra detectada. RSI em zona de exaustÃ£o com divergÃªncia de volume. CorreÃ§Ã£o tÃ©cnica iminente para busca de liquidez inferior.";
-            
-            document.getElementById('entry-val').innerText = `$${currentPrice.toLocaleString()}`;
-            document.getElementById('stop-val').innerText = `$${(currentPrice * (isBullish ? 0.975 : 1.025)).toLocaleString()}`;
-            document.getElementById('tp1-val').innerText = `$${(currentPrice * (isBullish ? 1.12 : 0.88)).toLocaleString()}`;
-            
-            const vCard = document.getElementById('verdict-card');
-            const vIcon = document.getElementById('verdict-icon');
-            if(isBullish) {
-                vCard.className = "glass p-6 md:p-8 rounded-[2rem] border-l-8 border-emerald-500 bg-emerald-500/5";
-                vIcon.className = "p-4 rounded-2xl bg-emerald-500 text-black";
-                vIcon.innerHTML = '<i data-lucide="trending-up"></i>';
-            } else {
-                vCard.className = "glass p-6 md:p-8 rounded-[2rem] border-l-8 border-rose-500 bg-rose-500/5";
-                vIcon.className = "p-4 rounded-2xl bg-rose-500 text-black";
-                vIcon.innerHTML = '<i data-lucide="trending-down"></i>';
+            for (let step of steps) {
+                await new Promise(r => setTimeout(r, 450));
+                const div = document.createElement('div');
+                div.className = "flex gap-3 text-emerald-400 animate-in slide-in-from-left-2 duration-300";
+                div.innerHTML = `<span class="opacity-20">>></span> <span>${step}</span>`;
+                list.appendChild(div);
+                list.parentNode.scrollTop = list.parentNode.scrollHeight;
             }
-            lucide.createIcons();
-        }
 
-        function closeAiAnalysis() {
-            document.getElementById('ai-view').classList.add('hidden');
-            document.body.style.overflow = 'auto';
+            await new Promise(r => setTimeout(r, 1000));
+            loader.classList.add('hidden');
+            decision.classList.remove('hidden');
+
+            document.getElementById('entry-p').innerText = `$ ${currentPrice.toLocaleString()}`;
+            document.getElementById('tp-p').innerText = `$ ${(currentPrice * 1.055).toLocaleString(undefined, {maximumFractionDigits:0})}`;
         }
     </script>
 </body>
